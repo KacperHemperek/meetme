@@ -88,10 +88,9 @@ function MarkerWithPopup({
 
 export default function Home() {
   const { data, isLoading } = api.meetings.getAll.useQuery();
-  const mapRef = useRef<MapRef>(null);
-
-  const [selectedMarker, setSelectedMarker] = useState<string | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [selectedMarker, setSelectedMarker] = useState<string | null>(null);
+  const mapRef = useRef<MapRef>(null);
 
   const canShowMarkers = mapLoaded && !isLoading && data;
 

@@ -27,3 +27,9 @@
 .mapboxgl-popup-anchor-right .mapboxgl-popup-tip {
   border-left-color: theme("colors.stone.950") !important;
 }
+
+@layer utilities {
+  .animate-popup {
+    @apply data-[state=open]:animate-in data-[state=open]:fade-in data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=open]:slide-in-from-left-1/2 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[45%] data-[state=open]:slide-in-from-top-[45%] data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95
+  }
+}
