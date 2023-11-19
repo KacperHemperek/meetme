@@ -1,56 +1,99 @@
 import Head from "next/head";
-import { useRef } from "react";
 import { api } from "~/utils/api";
-import { Map, MapRef } from "react-map-gl";
+import { Map, type MapRef, Marker, Popup } from "react-map-gl";
 import { env } from "~/env.mjs";
+import React, { useRef, useState } from "react";
+import type { MeetingWithLocation } from "~/server/api/routers/meetings";
+import { XIcon } from "lucide-react";
+import MapFabGroup from "~/components/map-fab-group";
+import Image from "next/image";
 
-function MapboxMarker({
-  map,
-  latlong,
+const MAP_FLY_TO_LAT_OFFSET = 0.005;
+
+function MarkerWithPopup({
+  data,
+  selectedMarkerId,
+  setSelectedMarkerId,
+  mapRef,
 }: {
-  map: mapboxgl.Map | null;
-  latlong: [number, number];
+  data: MeetingWithLocation;
+  selectedMarkerId: string | null;
+  setSelectedMarkerId: (val: string | null) => void;
+  mapRef: MapRef;
 }) {
-  const markerRef = useRef<HTMLDivElement>(null);
-  const popupRef = useRef<HTMLDivElement>(null);
+  const markerIsSelected = selectedMarkerId === data.id;
 
-  function zoomMapToMarker() {
-    if (!map) return;
-    map.flyTo({ center: latlong, zoom: map.getZoom() });
-    popupRef.current?.scrollIntoView({ behavior: "smooth" });
+  function openPopupAndZoomOnMarker() {
+    setSelectedMarkerId(data.id);
+    mapRef.flyTo({
+      center: [
+        data.location.coordinates[1]!,
+        data.location.coordinates[0]! + MAP_FLY_TO_LAT_OFFSET,
+      ] as [number, number],
+      zoom: 14,
+    });
+  }
+
+  function closePopup() {
+    setSelectedMarkerId(null);
   }
 
   return (
     <>
-      <div
-        ref={markerRef}
-        onClick={zoomMapToMarker}
-        className="rounded-full border-2 border-slate-50 bg-sky-500 p-2"
-      />
-      <div className="flex flex-col" ref={popupRef}>
-        <h1 className="text-semibold text-lg">Marker</h1>
-        <p className="text-sm text-slate-500">Marker description</p>
-      </div>
+      <Marker
+        latitude={data.location.coordinates[0]!}
+        longitude={data.location.coordinates[1]!}
+        onClick={openPopupAndZoomOnMarker}
+      >
+        <div className="cursor-pointer rounded-full border-4 border-slate-50 bg-emerald-500 p-2 text-slate-50"></div>
+      </Marker>
+      {markerIsSelected && (
+        <Popup
+          onClose={closePopup}
+          closeButton={false}
+          closeOnClick={false}
+          closeOnMove={false}
+          latitude={data.location.coordinates[0]!}
+          longitude={data.location.coordinates[1]!}
+          offset={12}
+          maxWidth="none"
+          anchor="bottom"
+        >
+          <div className="flex w-80 flex-col">
+            <div className="rounded-t-inherit relative h-16 w-full overflow-hidden rounded-t-lg">
+              <Image
+                src={"http://localhost:4200/api/images/portfolio_thumbnail.png"}
+                fill
+                objectFit="cover"
+                alt="A background image of a meeting"
+              />
+
+              <button
+                onClick={closePopup}
+                className="absolute right-1 top-1 z-10 rounded-md bg-stone-950 p-0.5 backdrop-blur-sm"
+              >
+                <XIcon className="h-5 w-5 " />
+              </button>
+            </div>
+            <div className="p-4">
+              <h3 className="text-lg font-semibold">{data.title}</h3>
+              {data.description}
+            </div>
+          </div>
+        </Popup>
+      )}
     </>
   );
 }
 
 export default function Home() {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<MapRef | null>(null);
+  const { data, isLoading } = api.meetings.getAll.useQuery();
+  const mapRef = useRef<MapRef>(null);
 
-  const { data, mutate } = api.map.searchByName.useMutation();
+  const [selectedMarker, setSelectedMarker] = useState<string | null>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
 
-  function handleCitySearch(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const city = formData.get("city") as string;
-    mutate({ city });
-  }
-
-  function goToMapLocation(center: [number, number]) {
-    map.current?.flyTo({ center, zoom: 11 });
-  }
+  const canShowMarkers = mapLoaded && !isLoading && data;
 
   return (
     <>
@@ -60,55 +103,25 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex h-screen">
-        <nav className="flex flex w-full max-w-sm flex-col overflow-y-auto border-r border-slate-400 bg-slate-100 p-8 text-slate-950">
-          <form
-            className="flex flex-col gap-4 pb-12"
-            onSubmit={handleCitySearch}
-          >
-            <h1 className="text-semibold text-xl">Search for a city</h1>
-            <input
-              type="text"
-              name="city"
-              id="city"
-              placeholder="City Name, New York, Los Angeles etc..."
-              className="rounded-md border border-slate-400 bg-transparent p-2"
-            />
-            <button className="rounded-md bg-sky-500 p-2 text-slate-50">
-              Search
-            </button>
-          </form>
-          {data && (
-            <div className="grid divide-y divide-slate-400 border-y border-slate-400">
-              {data?.data?.features?.map((feature) => (
-                <div
-                  key={feature.place_name}
-                  className="flex flex-col gap-4 py-6"
-                >
-                  <span>{feature.place_name}</span>
-                  <button
-                    onClick={() =>
-                      goToMapLocation([feature.center[0]!, feature.center[1]!])
-                    }
-                    className="w-min rounded-md bg-emerald-500 px-4 py-1 text-slate-50"
-                  >
-                    Find
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </nav>
+        <MapFabGroup />
         <Map
-          ref={map}
-          mapStyle="mapbox://styles/mapbox/streets-v11"
+          ref={mapRef}
           mapboxAccessToken={env.NEXT_PUBLIC_MAPBOX_TOKEN}
-          initialViewState={{
-            longitude: -74,
-            latitude: 40.6,
-            zoom: 9,
-          }}
-          style={{ flex: 1 }}
-        ></Map>
+          mapStyle="mapbox://styles/mapbox/dark-v11"
+          onLoad={() => setMapLoaded(true)}
+          onClick={(e) => console.log({ mapClick: e })}
+        >
+          {canShowMarkers &&
+            data.map((markerData) => (
+              <MarkerWithPopup
+                key={markerData.id}
+                data={markerData}
+                setSelectedMarkerId={setSelectedMarker}
+                selectedMarkerId={selectedMarker}
+                mapRef={mapRef.current!}
+              />
+            ))}
+        </Map>
       </main>
     </>
   );

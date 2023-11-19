@@ -1,4 +1,5 @@
 import { mapSearchRouter } from "~/server/api/routers/map-search";
+import { meetingsRouter } from "~/server/api/routers/meetings";
 import { createTRPCRouter } from "~/server/api/trpc";
 
 /**
@@ -8,6 +9,7 @@ import { createTRPCRouter } from "~/server/api/trpc";
  */
 export const appRouter = createTRPCRouter({
   map: mapSearchRouter,
+  meetings: meetingsRouter,
 });
 
 // export type definition of API

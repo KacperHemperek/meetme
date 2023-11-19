@@ -1,3 +1,29 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.mapboxgl-popup-content {
+  background: theme("colors.stone.950") !important;
+  border-radius: theme("borderRadius.lg") !important;
+  color: theme("colors.slate.50") !important;
+  box-shadow: theme("boxShadow.md") !important;
+  border: 1px solid theme("colors.stone.950") !important;
+  font-size: theme("fontSize.sm") !important;
+  padding: 0 !important;
+}
+
+.mapboxgl-popup-anchor-top .mapboxgl-popup-tip {
+  border-bottom-color: theme("colors.stone.950") !important;
+}
+
+.mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip {
+  border-top-color: theme("colors.stone.950") !important;
+}
+
+.mapboxgl-popup-anchor-left .mapboxgl-popup-tip {
+  border-right-color: theme("colors.stone.950") !important;
+}
+
+.mapboxgl-popup-anchor-right .mapboxgl-popup-tip {
+  border-left-color: theme("colors.stone.950") !important;
+}
