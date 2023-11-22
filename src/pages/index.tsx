@@ -102,25 +102,30 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex h-screen">
+        <div className="flex w-2/5 flex-col bg-stone-950 p-8 text-slate-50">
+          <h1>Meetings</h1>
+        </div>
         <MapFabGroup />
-        <Map
-          ref={mapRef}
-          mapboxAccessToken={env.NEXT_PUBLIC_MAPBOX_TOKEN}
-          mapStyle="mapbox://styles/mapbox/dark-v11"
-          onLoad={() => setMapLoaded(true)}
-          onClick={(e) => console.log({ mapClick: e })}
-        >
-          {canShowMarkers &&
-            data.map((markerData) => (
-              <MarkerWithPopup
-                key={markerData.id}
-                data={markerData}
-                setSelectedMarkerId={setSelectedMarker}
-                selectedMarkerId={selectedMarker}
-                mapRef={mapRef.current!}
-              />
-            ))}
-        </Map>
+        <div className="w-3/5">
+          <Map
+            ref={mapRef}
+            mapboxAccessToken={env.NEXT_PUBLIC_MAPBOX_TOKEN}
+            mapStyle="mapbox://styles/mapbox/dark-v11"
+            onLoad={() => setMapLoaded(true)}
+            onClick={(e) => console.log({ mapClick: e })}
+          >
+            {canShowMarkers &&
+              data.map((markerData) => (
+                <MarkerWithPopup
+                  key={markerData.id}
+                  data={markerData}
+                  setSelectedMarkerId={setSelectedMarker}
+                  selectedMarkerId={selectedMarker}
+                  mapRef={mapRef.current!}
+                />
+              ))}
+          </Map>
+        </div>
       </main>
     </>
   );
