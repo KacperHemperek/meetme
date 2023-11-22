@@ -104,6 +104,7 @@ export default function Home() {
       <main className="flex h-screen">
         <div className="flex w-2/5 flex-col bg-stone-950 p-8 text-slate-50">
           <h1>Meetings</h1>
+          <div className="flex flex-col"></div>
         </div>
         <MapFabGroup />
         <div className="w-3/5">
