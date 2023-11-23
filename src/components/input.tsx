@@ -1,6 +1,4 @@
-import React from "react";
-import { Map, type MapRef } from "react-map-gl";
-import { env } from "~/env.mjs";
+import React, { forwardRef } from "react";
 import { cn } from "~/utils/cn";
 
 function Label({
@@ -16,52 +14,46 @@ function Label({
   );
 }
 
-export function Input({
-  label,
-  id,
-  disabled,
-  name,
-  ...rest
-}: React.InputHTMLAttributes<HTMLInputElement> & {
-  label: string;
-  type: React.InputHTMLAttributes<HTMLInputElement>["type"];
-}) {
-  const mapRef = React.useRef<MapRef>(null);
+export function MapInput({ name }: { name: string }) {
+  return "map";
+  // <div
+  //   className={cn(
+  //     "flex flex-col",
+  //     disabled && "pointer-events-none opacity-50",
+  //   )}
+  // >
+  //   <Label htmlFor={id}>{label}</Label>
+  //   <input
+  //     type="text"
+  //     name={name}
+  //     id={id}
+  //     className={inputClassNames}
+  //     disabled={disabled}
+  //   />
+  //   <div className="flex h-80 w-full pt-6">
+  //     <Map
+  //       mapboxAccessToken={env.NEXT_PUBLIC_MAPBOX_TOKEN}
+  //       ref={mapRef}
+  //       mapStyle="mapbox://styles/mapbox/dark-v11"
+  //       initialViewState={{
+  //         zoom: 10,
+  //         latitude: 37.7577,
+  //         longitude: -122.4376,
+  //       }}
+  //     ></Map>
+  //   </div>
+  // </div>
+}
 
+export const Input = forwardRef<
+  HTMLInputElement,
+  React.InputHTMLAttributes<HTMLInputElement> & {
+    label: string;
+  }
+>(({ label, disabled, ...rest }, ref) => {
   const inputClassNames =
     "rounded-md border border-stone-600 bg-transparent px-3 py-2 text-stone-50 outline-none";
 
-  if (rest.type === "map")
-    return (
-      <div
-        className={cn(
-          "flex flex-col",
-          disabled && "pointer-events-none opacity-50",
-        )}
-      >
-        <Label htmlFor={id}>{label}</Label>
-        <input
-          type="text"
-          name={name}
-          id={id}
-          className={inputClassNames}
-          disabled={disabled}
-        />
-        <div className="flex h-96 w-full pt-6">
-          <Map
-            mapboxAccessToken={env.NEXT_PUBLIC_MAPBOX_TOKEN}
-            ref={mapRef}
-            mapStyle="mapbox://styles/mapbox/dark-v11"
-            initialViewState={{
-              zoom: 10,
-              latitude: 37.7577,
-              longitude: -122.4376,
-            }}
-          ></Map>
-        </div>
-      </div>
-    );
-
   return (
     <div
       className={cn(
@@ -69,19 +61,26 @@ export function Input({
         disabled && "pointer-events-none opacity-50",
       )}
     >
-      <Label htmlFor={id}>{label}</Label>
-      <input {...rest} className={inputClassNames} disabled={disabled} />
+      <Label htmlFor={rest.name}>{label}</Label>
+      <input
+        {...rest}
+        id={rest.name}
+        ref={ref}
+        className={inputClassNames}
+        disabled={disabled}
+      />
     </div>
   );
-}
+});
 
-export function TextArea({
-  disabled,
-  label,
-  ...rest
-}: React.InputHTMLAttributes<HTMLTextAreaElement> & {
-  label: string;
-}) {
+Input.displayName = "Input";
+
+export const TextArea = forwardRef<
+  HTMLTextAreaElement,
+  React.InputHTMLAttributes<HTMLTextAreaElement> & {
+    label: string;
+  }
+>(({ disabled, label, ...rest }, ref) => {
   return (
     <div
       className={cn(
@@ -89,12 +88,16 @@ export function TextArea({
         disabled && "pointer-events-none opacity-50",
       )}
     >
-      <Label htmlFor={rest.id}>{label}</Label>
+      <Label htmlFor={rest.name}>{label}</Label>
       <textarea
+        ref={ref}
         className="calendar-input rounded-md border border-stone-600 bg-transparent px-3 py-2 text-stone-50 outline-none"
         disabled={disabled}
+        id={rest.name}
         {...rest}
       />
     </div>
   );
-}
+});
+
+TextArea.displayName = "TextArea";

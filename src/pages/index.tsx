@@ -122,7 +122,6 @@ export default function Home() {
             mapboxAccessToken={env.NEXT_PUBLIC_MAPBOX_TOKEN}
             mapStyle="mapbox://styles/mapbox/dark-v11"
             onLoad={() => setMapLoaded(true)}
-            onClick={(e) => console.log({ mapClick: e })}
           >
             {canShowMarkers &&
               data.map((markerData) => (
@@ -131,7 +130,7 @@ export default function Home() {
                   data={markerData}
                   setSelectedMarkerId={setSelectedMarker}
                   selectedMarkerId={selectedMarker}
-                  />
+                />
               ))}
           </Map>
         </div>
