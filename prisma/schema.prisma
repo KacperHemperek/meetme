@@ -47,15 +47,16 @@ model User {
 }
 
 model Meeting {
-  id          String                               @id @default(cuid())
-  title       String
-  startTime   DateTime
-  endTime     DateTime
-  creator     User                                 @relation("MeetingCreator", fields: [creatorId], references: [id])
-  creatorId   String
-  members     User[]                               @relation("MeetingMembers")
-  description String
-  location    Unsupported("geometry(Point, 4326)")
+  id              String                               @id @default(cuid())
+  title           String
+  startTime       DateTime
+  endTime         DateTime
+  creator         User                                 @relation("MeetingCreator", fields: [creatorId], references: [id])
+  creatorId       String
+  members         User[]                               @relation("MeetingMembers")
+  description     String
+  backgroundImage String?
+  location        Unsupported("geometry(Point, 4326)")
 
   @@index([creatorId], name: "creatorId")
   @@index([location], name: "location", type: Gist)

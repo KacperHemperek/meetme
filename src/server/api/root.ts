@@ -1,4 +1,3 @@
-import { mapSearchRouter } from "~/server/api/routers/map-search";
 import { meetingsRouter } from "~/server/api/routers/meetings";
 import { createTRPCRouter } from "~/server/api/trpc";
 
@@ -8,7 +7,6 @@ import { createTRPCRouter } from "~/server/api/trpc";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-  map: mapSearchRouter,
   meetings: meetingsRouter,
 });
 
