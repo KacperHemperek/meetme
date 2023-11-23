@@ -1,31 +1,40 @@
-import Head from "next/head";
-import { api } from "~/utils/api";
-import { Map, type MapRef, Marker, Popup } from "react-map-gl";
-import { env } from "~/env.mjs";
-import React, { useRef, useState } from "react";
-import type { MeetingWithLocation } from "~/server/api/routers/meetings";
 import { XIcon } from "lucide-react";
-import MapFabGroup from "~/components/map-fab-group";
+import Head from "next/head";
 import Image from "next/image";
+import { useRef, useState } from "react";
+import { Map, Marker, Popup, type MapRef, useMap } from "react-map-gl";
+import MapFabGroup from "~/components/map-fab-group";
+import { env } from "~/env.mjs";
+import type { MeetingWithLocation } from "~/server/api/routers/meetings";
+import { api } from "~/utils/api";
 
 const MAP_FLY_TO_LAT_OFFSET = 0.005;
+
+function useSafeMap() {
+  const map = useMap();
+
+  if (!map.current) {
+    throw new Error("use map needs to be called inside a map component");
+  }
+
+  return map.current;
+}
 
 function MarkerWithPopup({
   data,
   selectedMarkerId,
   setSelectedMarkerId,
-  mapRef,
 }: {
   data: MeetingWithLocation;
   selectedMarkerId: string | null;
   setSelectedMarkerId: (val: string | null) => void;
-  mapRef: MapRef;
 }) {
+  const map = useSafeMap();
   const markerIsSelected = selectedMarkerId === data.id;
 
   function openPopupAndZoomOnMarker() {
     setSelectedMarkerId(data.id);
-    mapRef.flyTo({
+    map.flyTo({
       center: [
         data.location.coordinates[1]!,
         data.location.coordinates[0]! + MAP_FLY_TO_LAT_OFFSET,
@@ -117,7 +126,6 @@ export default function Home() {
                 data={markerData}
                 setSelectedMarkerId={setSelectedMarker}
                 selectedMarkerId={selectedMarker}
-                mapRef={mapRef.current!}
               />
             ))}
         </Map>
