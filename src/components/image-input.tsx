@@ -9,13 +9,8 @@ export function ImageInput({
   image: {
     dataUrl: string;
     contentType: string;
-    name: string;
   } | null;
-  setImage: (image: {
-    dataUrl: string;
-    contentType: string;
-    name: string;
-  }) => void;
+  setImage: (image: { dataUrl: string; contentType: string }) => void;
   name: string;
 }) {
   function onFileDrop(e: React.ChangeEvent<HTMLInputElement>) {
@@ -28,7 +23,6 @@ export function ImageInput({
       setImage({
         contentType: file.type,
         dataUrl: e.target?.result as string,
-        name: file.name,
       });
     };
     reader.readAsDataURL(file);

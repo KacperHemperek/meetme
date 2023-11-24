@@ -10,7 +10,6 @@ type AddMeetingForm = {
   image: {
     dataUrl: string;
     contentType: string;
-    name: string;
   } | null;
   name: string;
   description: string;
@@ -27,25 +26,21 @@ export default function AddMeeting({
   open: boolean;
   trigger?: React.ReactNode;
 }) {
-  const { mutateAsync } = api.meetings.create.useMutation();
+  const { mutate } = api.meetings.create.useMutation();
 
   const { control, register, handleSubmit } = useForm<AddMeetingForm>();
 
-  async function createMeeting(data: AddMeetingForm) {
-    try {
-      console.log(data);
-
-      const result = await mutateAsync({
-        description: data.description,
-        title: data.name,
-        startTime: data.startDate,
-        endTime: data.endDate,
-        location: {
-          coordinates: [72, 32],
-        },
-        image: data.image,
-      });
-    } catch (e) {}
+  function createMeeting(data: AddMeetingForm) {
+    mutate({
+      description: data.description,
+      title: data.name,
+      startTime: data.startDate,
+      endTime: data.endDate,
+      location: {
+        coordinates: [40.73061, -73.935242],
+      },
+      image: data.image,
+    });
   }
 
   return (

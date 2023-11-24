@@ -1,16 +1,18 @@
-import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { env } from "~/env.mjs";
 import {
   createMeetingSchema,
   getMeetingByIdSchema,
 } from "~/server/api/routers/meetings/schema";
-import { getAllMeetings } from "~/server/api/routers/meetings/services";
+import {
+  createMeetingWithImage,
+  createMeetingWithoutImage,
+  getAllMeetings,
+} from "~/server/api/routers/meetings/services";
 import type {
   MeetingWithLocation,
   MeetingWithLocationString,
 } from "~/server/api/routers/meetings/types";
 import { publicProcedure } from "~/server/api/trpc";
-import { getBufferFromURL } from "~/utils/get-buffer-from-url";
+import { uploadImage } from "~/server/lib/s3";
 
 export const getAllMeetingsController = publicProcedure.query(
   async ({ ctx }) => {
@@ -66,63 +68,40 @@ export const createMeetingController = publicProcedure
       const startTime = startDate.getTime();
       const endTime = endDate.getTime();
 
+      if (!input.image) {
+        await createMeetingWithoutImage(ctx.db, {
+          title: input.title,
+          description: input.description,
+          startTime,
+          endTime,
+          coordinates: input.location.coordinates,
+          uuid,
+          creatorId,
+        });
+
+        return;
+      }
+
       const imageExtension = input.image?.contentType.split("/")[1];
       const imageName = `bg-image.${imageExtension}`;
-
-      const imageBuffer = await getBufferFromURL(
-        input.image?.dataUrl,
-        imageName,
-        input.image?.contentType,
-      );
-
       const path = `${uuid}/${imageName}`;
 
-      const putObjCommand = new PutObjectCommand({
-        Bucket: "meetme-app",
-        Key: path,
-        Body: imageBuffer,
-        ContentType: input.image?.contentType,
+      const imageUrl = await uploadImage(ctx.s3Client, path, {
+        dataUrl: input.image.dataUrl,
+        name: imageName,
+        type: input.image.contentType,
       });
 
-      await ctx.s3Client.send(putObjCommand);
-
-      const fullUrl = `${env.NEXTAUTH_URL}/api/images/${path}`;
-
-      const response = await ctx.db.$queryRaw`
-      INSERT INTO "Meeting" (
-        "id",
-        "creatorId",
-        "title",
-        "description",
-        "startTime",
-        "endTime",
-        "location",
-        "createdAt",
-        "backgroundImage"
-      )
-      VALUES (
-        ${uuid},
-        ${creatorId},
-        ${input.title},
-        ${input.description},
-        to_timestamp(${startTime} / 1000),
-        to_timestamp(${endTime} / 1000),
-        ST_MakePoint(${input.location.coordinates[0]}, ${input.location.coordinates[1]}),
-        NOW(),
-        ${fullUrl}
-      ) RETURNING 
-        "id",
-        "creatorId",
-        "title",
-        "description",
-        "startTime",
-        "endTime",
-        ST_AsGeoJSON(location) as location,
-        "createdAt",
-        "backgroundImage";
-    `;
-
-      return response;
+      await createMeetingWithImage(ctx.db, {
+        title: input.title,
+        description: input.description,
+        startTime,
+        endTime,
+        coordinates: input.location.coordinates,
+        uuid,
+        creatorId,
+        imageUrl,
+      });
     } catch (error) {
       console.error(error);
     }
