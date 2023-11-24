@@ -28,11 +28,20 @@ export default function AddMeeting({
 }) {
   const { mutate, isLoading } = api.meetings.create.useMutation({
     onSuccess: () => {
+      reset();
       toggle(false);
     },
   });
 
-  const { control, handleSubmit } = useForm<AddMeetingForm>();
+  const { control, handleSubmit, reset } = useForm<AddMeetingForm>({
+    defaultValues: {
+      name: "",
+      description: "",
+      startDate: "",
+      endDate: "",
+      image: null,
+    },
+  });
 
   function createMeeting(data: AddMeetingForm) {
     mutate({
@@ -52,6 +61,7 @@ export default function AddMeeting({
       open={open}
       onOpenChange={(val) => {
         if (isLoading) return;
+        reset();
         toggle(val);
       }}
     >
