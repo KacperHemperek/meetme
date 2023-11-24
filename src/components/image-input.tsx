@@ -1,10 +1,12 @@
 import { UploadCloud } from "lucide-react";
 import Image from "next/image";
+import { cn } from "~/utils/cn";
 
 export function ImageInput({
   image,
   setImage,
   name,
+  disabled,
 }: {
   image: {
     dataUrl: string;
@@ -12,6 +14,7 @@ export function ImageInput({
   } | null;
   setImage: (image: { dataUrl: string; contentType: string }) => void;
   name: string;
+  disabled?: boolean;
 }) {
   function onFileDrop(e: React.ChangeEvent<HTMLInputElement>) {
     console.log("changing");
@@ -30,7 +33,12 @@ export function ImageInput({
 
   return (
     <div>
-      <div className="relative h-32 rounded-md border border-stone-600">
+      <div
+        className={cn(
+          "relative h-32 rounded-md border border-stone-600",
+          disabled && "cursor-not-allowed opacity-50",
+        )}
+      >
         <div className="absolute inset-0">
           <Image
             src={
@@ -45,7 +53,10 @@ export function ImageInput({
         </div>
         <label
           htmlFor={name}
-          className="drop group absolute inset-0 z-10 flex cursor-pointer items-center justify-center rounded-md opacity-0 backdrop-blur-sm transition-all duration-300 hover:bg-stone-950/30 hover:opacity-100"
+          className={cn(
+            "drop group absolute inset-0 z-10 flex cursor-pointer items-center justify-center rounded-md opacity-0 backdrop-blur-sm transition-all duration-300 hover:bg-stone-950/30 hover:opacity-100",
+            disabled && "pointer-events-none",
+          )}
         >
           <div className="flex flex-col items-center gap-2 text-sm">
             <UploadCloud className="h-6 w-6" />
@@ -55,9 +66,10 @@ export function ImageInput({
             id={name}
             name={name}
             type="file"
-            accept="image/*"
+            accept="image/png, image/jpeg"
             className="hidden"
             onChange={onFileDrop}
+            disabled={disabled}
           />
         </label>
       </div>

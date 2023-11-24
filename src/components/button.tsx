@@ -18,7 +18,13 @@ export default function Button({
   };
 
   return (
-    <button {...rest} className={cn(variants[variant], "rounded-md px-4 py-2")}>
+    <button
+      {...rest}
+      className={cn(
+        variants[variant],
+        "rounded-md px-4 py-2 disabled:cursor-not-allowed disabled:opacity-50",
+      )}
+    >
       {children}
     </button>
   );

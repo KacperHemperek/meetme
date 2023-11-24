@@ -58,7 +58,7 @@ export const Input = forwardRef<
     <div
       className={cn(
         "relative flex flex-col",
-        disabled && "pointer-events-none opacity-50",
+        disabled && "cursor-not-allowed opacity-50",
       )}
     >
       <Label htmlFor={rest.name}>{label}</Label>
@@ -85,7 +85,7 @@ export const TextArea = forwardRef<
     <div
       className={cn(
         "relative flex flex-col",
-        disabled && "pointer-events-none opacity-50",
+        disabled && "cursor-not-allowed opacity-50",
       )}
     >
       <Label htmlFor={rest.name}>{label}</Label>
