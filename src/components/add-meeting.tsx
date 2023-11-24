@@ -7,7 +7,11 @@ import { api } from "~/utils/api";
 import { ImageInput } from "~/components/image-input";
 
 type AddMeetingForm = {
-  image: string | null;
+  image: {
+    dataUrl: string;
+    contentType: string;
+    name: string;
+  } | null;
   name: string;
   description: string;
   startDate: string;
@@ -24,25 +28,23 @@ export default function AddMeeting({
   trigger?: React.ReactNode;
 }) {
   const { mutateAsync } = api.meetings.create.useMutation();
-  const { mutateAsync: uploadImage } = api.images.getPresignedUrl.useMutation();
-  const { mutateAsync: updateImage } =
-    api.meetings.updateBackgroundImage.useMutation();
 
   const { control, register, handleSubmit } = useForm<AddMeetingForm>();
 
   async function createMeeting(data: AddMeetingForm) {
     try {
+      console.log(data);
+
       const result = await mutateAsync({
         description: data.description,
         title: data.name,
         startTime: data.startDate,
         endTime: data.endDate,
         location: {
-          coordinates: [71, 40],
+          coordinates: [72, 32],
         },
+        image: data.image,
       });
-
-      console.log({ result });
     } catch (e) {}
   }
 
@@ -61,8 +63,8 @@ export default function AddMeeting({
               control={control}
               render={({ field }) => (
                 <ImageInput
-                  setImage={field.onChange}
                   image={field.value}
+                  setImage={field.onChange}
                   name={field.name}
                 />
               )}

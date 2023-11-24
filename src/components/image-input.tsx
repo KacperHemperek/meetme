@@ -6,8 +6,16 @@ export function ImageInput({
   setImage,
   name,
 }: {
-  image: string | null;
-  setImage: (val: string | null) => void;
+  image: {
+    dataUrl: string;
+    contentType: string;
+    name: string;
+  } | null;
+  setImage: (image: {
+    dataUrl: string;
+    contentType: string;
+    name: string;
+  }) => void;
   name: string;
 }) {
   function onFileDrop(e: React.ChangeEvent<HTMLInputElement>) {
@@ -17,7 +25,11 @@ export function ImageInput({
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (e) => {
-      setImage(e.target?.result as string);
+      setImage({
+        contentType: file.type,
+        dataUrl: e.target?.result as string,
+        name: file.name,
+      });
     };
     reader.readAsDataURL(file);
   }
@@ -28,7 +40,7 @@ export function ImageInput({
         <div className="absolute inset-0">
           <Image
             src={
-              image ??
+              image?.dataUrl ??
               "http://localhost:4200/api/images/portfolio_thumbnail.png"
             }
             fill

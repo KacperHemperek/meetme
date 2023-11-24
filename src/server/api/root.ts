@@ -1,5 +1,5 @@
 import { imagesRouter } from "~/server/api/routers/images";
-import { meetingsRouter } from "~/server/api/routers/meetings";
+import { meetingsRouter } from "~/server/api/routers/meetings/router";
 import { createTRPCRouter } from "~/server/api/trpc";
 
 /**

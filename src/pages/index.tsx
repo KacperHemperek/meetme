@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import { Map, Marker, Popup, type MapRef, useMap } from "react-map-gl";
 import MapFabGroup from "~/components/map-fab-group";
 import { env } from "~/env.mjs";
-import type { MeetingWithLocation } from "~/server/api/routers/meetings";
+import type { MeetingWithLocation } from "~/server/api/routers/meetings/types";
 import { api } from "~/utils/api";
 
 const MAP_FLY_TO_LAT_OFFSET = 0.005;
@@ -71,7 +71,10 @@ function MarkerWithPopup({
           <div className="flex w-80 flex-col">
             <div className="rounded-t-inherit relative h-16 w-full overflow-hidden rounded-t-lg">
               <Image
-                src={"http://localhost:4200/api/images/portfolio_thumbnail.png"}
+                src={
+                  data.backgroundImage ??
+                  "http://localhost:4200/api/images/portfolio_thumbnail.png"
+                }
                 fill
                 objectFit="cover"
                 alt="A background image of a meeting"
